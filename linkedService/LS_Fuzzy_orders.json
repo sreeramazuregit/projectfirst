@@ -1,0 +1,12 @@
+{
+	"name": "LS_Fuzzy_orders",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://sreeramoldstorageaccount.dfs.core.windows.net/",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEIzQ0RFQjdGLURDRUMtNDM4Qi1BM0FFLUQ5Rjc1NDNFOENGNV8yNmUwZDZlMy01NmE1LTQxMzctYTk4ZC00NDcxZjcyZjIxMzkiDQp9"
+		}
+	}
+}

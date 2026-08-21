@@ -1,0 +1,15 @@
+{
+	"name": "ADF-demo-sreeram",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4ab1d8f4-0eb5-4c0c-9c00-c3cac4275a89",
+		"tenantId": "e3a71952-c867-4c98-8a59-5434c80a0a1a"
+	}
+}

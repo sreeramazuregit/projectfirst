@@ -1,0 +1,21 @@
+{
+	"name": "RecievedJson",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Result",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "users.json",
+				"folderPath": "raw",
+				"fileSystem": "first-container"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
