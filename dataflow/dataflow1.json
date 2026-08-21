@@ -1,0 +1,121 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_REST_Orders",
+						"type": "DatasetReference"
+					},
+					"name": "OrdersAPI"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Staging_Cart_Items",
+						"type": "DatasetReference"
+					},
+					"name": "OrdersAPIsink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FlattenCarts"
+				},
+				{
+					"name": "FlattenProducts"
+				},
+				{
+					"name": "SelectCartItems"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     token as string",
+				"}",
+				"source(output(",
+				"          body as (carts as (discountedTotal as double, id as short, products as (discountPercentage as double, discountedTotal as double, id as short, price as double, quantity as short, thumbnail as string, title as string, total as double)[], total as double, totalProducts as short, totalQuantity as short, userId as short)[], limit as short, skip as boolean, total as short),",
+				"          headers as [string,string]",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     httpMethod: 'GET',",
+				"     timeout: 30,",
+				"     requestInterval: 0,",
+				"     headers: ['Authorization' -> (concat('Bearer ', $token))],",
+				"     paginationRules: ['supportRFC5988' -> 'false'],",
+				"     responseFormat: ['type' -> 'json', 'documentForm' -> 'documentPerLine']) ~> OrdersAPI",
+				"OrdersAPI foldDown(unroll(body.carts),",
+				"     mapColumn(",
+				"          cart_id = body.carts.id",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> FlattenCarts",
+				"OrdersAPI foldDown(unroll(body.carts.products),",
+				"     mapColumn(",
+				"          discount_percentage = body.carts.products.discountPercentage,",
+				"          cart_id = body.carts.id,",
+				"          product_id = body.carts.products.id,",
+				"          discounted_total = body.carts.products.discountedTotal,",
+				"          price = body.carts.products.price,",
+				"          quantity = body.carts.products.quantity,",
+				"          thumbnail = body.carts.products.thumbnail,",
+				"          title = body.carts.products.title,",
+				"          total = body.carts.products.total",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> FlattenProducts",
+				"FlattenProducts select(mapColumn(",
+				"          discount_percentage,",
+				"          cart_id,",
+				"          product_id,",
+				"          discounted_total,",
+				"          price,",
+				"          quantity,",
+				"          thumbnail,",
+				"          title,",
+				"          total",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectCartItems",
+				"SelectCartItems sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          cart_id as integer,",
+				"          product_id as integer,",
+				"          product_title as string,",
+				"          price as decimal(18,2),",
+				"          quantity as integer,",
+				"          total as decimal(18,2),",
+				"          discount_percentage as decimal(8,2),",
+				"          discounted_total as decimal(18,2),",
+				"          thumbnail as string,",
+				"          source_file as string,",
+				"          ingest_timestamp as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     preSQLs:['TRUNCATE TABLE staging.stg_cart_items;'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          cart_id,",
+				"          product_id,",
+				"          product_title = title,",
+				"          price,",
+				"          quantity,",
+				"          total,",
+				"          discount_percentage,",
+				"          discounted_total,",
+				"          thumbnail",
+				"     )) ~> OrdersAPIsink"
+			]
+		}
+	}
+}
