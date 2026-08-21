@@ -1,0 +1,12 @@
+{
+	"name": "LS_REST_OrdersAPI",
+	"properties": {
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://adf-oauth-api-orders-bhhhdsdjemc3c9c7.centralindia-01.azurewebsites.net",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
