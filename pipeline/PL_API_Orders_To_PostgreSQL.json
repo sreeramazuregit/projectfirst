@@ -1,0 +1,216 @@
+{
+	"name": "PL_API_Orders_To_PostgreSQL",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetToken",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"url": "https://adf-oauth-api-orders-bhhhdsdjemc3c9c7.centralindia-01.azurewebsites.net/oauth/token",
+					"body": {
+						"grant_type": "client_credentials",
+						"client_id": "demo-client",
+						"client_secret": "demo-secret"
+					}
+				}
+			},
+			{
+				"name": "SetToken",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "GetToken",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "token",
+					"value": {
+						"value": "@activity('GetToken').output.access_token",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "CopyOrders",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "SetToken",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Authorization": {
+								"value": "@concat('Bearer ', variables('token'))",
+								"type": "Expression"
+							}
+						},
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "AzurePostgreSqlSink",
+						"writeBatchSize": 1000000,
+						"writeBatchTimeout": "00:30:00",
+						"preCopyScript": "TRUNCATE TABLE staging.stg_carts;",
+						"writeMethod": "CopyCommand"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['id']"
+								},
+								"sink": {
+									"name": "cart_id",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "['discountedTotal']"
+								},
+								"sink": {
+									"name": "discounted_total",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['total']"
+								},
+								"sink": {
+									"name": "total",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['userId']"
+								},
+								"sink": {
+									"name": "user_id",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "['totalProducts']"
+								},
+								"sink": {
+									"name": "total_products",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "['totalQuantity']"
+								},
+								"sink": {
+									"name": "total_quantity",
+									"type": "Int32"
+								}
+							}
+						],
+						"collectionReference": "$['carts']"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_REST_Orders",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Staging_Carts",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "DF_CartItems",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SetToken",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dataflow1",
+						"type": "DataFlowReference",
+						"parameters": {
+							"token": {
+								"value": "'@{variables('token')}'",
+								"type": "Expression"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"variables": {
+			"token": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
