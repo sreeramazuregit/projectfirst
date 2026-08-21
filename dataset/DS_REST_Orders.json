@@ -1,0 +1,15 @@
+{
+	"name": "DS_REST_Orders",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_REST_OrdersAPI",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": "/orders"
+		},
+		"schema": []
+	}
+}
