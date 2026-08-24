@@ -1,0 +1,17 @@
+{
+	"name": "AzurePostgreSqlTable1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_PostgreSQL_DE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzurePostgreSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "public",
+			"table": "employees"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
