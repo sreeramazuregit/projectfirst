@@ -5,7 +5,14 @@
 			{
 				"name": "GetToken",
 				"type": "WebActivity",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "SetWatermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -195,6 +202,10 @@
 							"token": {
 								"value": "'@{variables('token')}'",
 								"type": "Expression"
+							},
+							"watermark": {
+								"value": "'@{variables('lastWatermark')}'",
+								"type": "Expression"
 							}
 						}
 					},
@@ -204,11 +215,207 @@
 					},
 					"traceLevel": "Fine"
 				}
+			},
+			{
+				"name": "GetWatermark",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzurePostgreSqlSource",
+						"query": {
+							"value": "SELECT watermark_value\nFROM etl.watermark\nWHERE source_name = 'DummyJSON'\n  AND entity_name = 'Orders';",
+							"type": "Expression"
+						},
+						"partitionOption": "None",
+						"queryTimeout": "02:00:00"
+					},
+					"dataset": {
+						"referenceName": "AzurePostgreSqlTable1",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "SetWatermark",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "GetWatermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "lastWatermark",
+					"value": {
+						"value": "@string(activity('GetWatermark').output.firstRow.watermark_value)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "MergeCarts",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "DF_CartItems",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_PostgreSQL_DE",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "CALL curated.merge_carts();"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "MergeCartItems",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "MergeCarts",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_PostgreSQL_DE",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "CALL curated.merge_cart_items();"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "PipelineFailure",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "GetToken",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "CopyOrders",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "DF_CartItems",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "MergeCarts",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "MergeCartItems",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": "Orders ETL pipeline failed. Check the failed activity for details.",
+					"errorCode": "ORDERS_ETL_FAILURE"
+				}
+			},
+			{
+				"name": "UpdateWatermark",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "MergeCartItems",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_PostgreSQL_DE",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "CALL etl.update_orders_watermark();"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
 			}
 		],
 		"variables": {
 			"token": {
 				"type": "String"
+			},
+			"lastWatermark": {
+				"type": "String",
+				"defaultValue": "0"
 			}
 		},
 		"annotations": []
