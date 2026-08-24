@@ -30,11 +30,21 @@
 				},
 				{
 					"name": "SelectCartItems"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "aggregate2"
 				}
 			],
 			"scriptLines": [
 				"parameters{",
-				"     token as string",
+				"     token as string,",
+				"     watermark as string",
 				"}",
 				"source(output(",
 				"          body as (carts as (discountedTotal as double, id as short, products as (discountPercentage as double, discountedTotal as double, id as short, price as double, quantity as short, thumbnail as string, title as string, total as double)[], total as double, totalProducts as short, totalQuantity as short, userId as short)[], limit as short, skip as boolean, total as short),",
@@ -68,7 +78,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: false,",
 				"     skipDuplicateMapOutputs: false) ~> FlattenProducts",
-				"FlattenProducts select(mapColumn(",
+				"filter1 select(mapColumn(",
 				"          discount_percentage,",
 				"          cart_id,",
 				"          product_id,",
@@ -81,7 +91,18 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectCartItems",
-				"SelectCartItems sink(allowSchemaDrift: true,",
+				"FlattenProducts filter(cart_id > toInteger($watermark)) ~> filter1",
+				"filter1 aggregate(new_watermark = max(cart_id)) ~> aggregate1",
+				"SelectCartItems aggregate(groupBy(cart_id,",
+				"          product_id),",
+				"     title = first(title),",
+				"          price = first(price),",
+				"          discounted_total = first(discounted_total),",
+				"          quantity = first(quantity),",
+				"          discount_percentage = first(discount_percentage),",
+				"          thumbnail = first(thumbnail),",
+				"          total = first(total)) ~> aggregate2",
+				"aggregate2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          cart_id as integer,",
