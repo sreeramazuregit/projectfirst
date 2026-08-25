@@ -68,7 +68,7 @@
 				"precision": 10
 			},
 			{
-				"name": "loadDate",
+				"name": "created_date",
 				"type": "datetime2",
 				"scale": 7
 			}

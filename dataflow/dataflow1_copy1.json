@@ -99,7 +99,7 @@
 				"          eyeColor as string,",
 				"          height as integer,",
 				"          weight as integer,",
-				"          loadDate as timestamp",
+				"          created_date as timestamp",
 				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
@@ -123,7 +123,7 @@
 				"          eyeColor,",
 				"          height,",
 				"          weight,",
-				"          loadDate = created_date",
+				"          created_date",
 				"     )) ~> sink1"
 			]
 		}
