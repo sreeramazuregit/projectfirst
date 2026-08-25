@@ -2,8 +2,11 @@
 	"name": "DS_WATERMARK",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureSqlDatabase1",
+			"referenceName": "AssesmentLinkedService",
 			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "adfweekendassesmet"
 		},
 		"annotations": [],
 		"type": "AzureSqlTable",
@@ -17,10 +20,6 @@
 				"type": "int",
 				"precision": 10
 			}
-		],
-		"typeProperties": {
-			"schema": "adfassesment",
-			"table": "ETL_Watermark"
-		}
+		]
 	}
 }

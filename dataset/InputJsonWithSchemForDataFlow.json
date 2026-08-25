@@ -2,7 +2,7 @@
 	"name": "InputJsonWithSchemForDataFlow",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureDataLakeStorage1",
+			"referenceName": "LS_Result",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
