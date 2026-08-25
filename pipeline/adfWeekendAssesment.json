@@ -174,10 +174,6 @@
 				"userProperties": [],
 				"typeProperties": {
 					"storedProcedureName": "[adfassesment].[sp_merge_users_to_curated]"
-				},
-				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabase1",
-					"type": "LinkedServiceReference"
 				}
 			},
 			{
@@ -199,10 +195,6 @@
 					"secureInput": false
 				},
 				"userProperties": [],
-				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabase1",
-					"type": "LinkedServiceReference"
-				},
 				"typeProperties": {
 					"scripts": [
 						{
@@ -214,12 +206,6 @@
 				}
 			}
 		],
-		"parameters": {
-			"limit": {
-				"type": "string",
-				"defaultValue": "10"
-			}
-		},
 		"variables": {
 			"watermark": {
 				"type": "Integer"
