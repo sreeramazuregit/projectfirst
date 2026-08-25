@@ -1,0 +1,32 @@
+{
+	"name": "RestApiRequest",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "HttpServer1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"skip": {
+				"type": "int"
+			},
+			"limit": {
+				"type": "int"
+			}
+		},
+		"folder": {
+			"name": "adfweekendassesmet"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@concat('users?skip=', string(dataset().skip), '&limit=', string(dataset().limit))",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	}
+}
