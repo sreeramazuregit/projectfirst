@@ -15,7 +15,7 @@
 				"type": "AzureBlobFSLocation",
 				"fileName": "users.json",
 				"folderPath": "adftest/raw",
-				"fileSystem": "abhiramdirectroy20260817"
+				"fileSystem": "first-container"
 			}
 		},
 		"schema": {

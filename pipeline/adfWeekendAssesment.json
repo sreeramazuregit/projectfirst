@@ -164,6 +164,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"storedProcedureName": "[adfassesment].[sp_merge_users_to_curated]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AssesmentLinkedService",
+					"type": "LinkedServiceReference"
 				}
 			},
 			{
@@ -185,11 +189,15 @@
 					"secureInput": false
 				},
 				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AssesmentLinkedService",
+					"type": "LinkedServiceReference"
+				},
 				"typeProperties": {
 					"scripts": [
 						{
 							"type": "Query",
-							"text": "TRUNCATE TABLE adfassesment.users;"
+							"text": "TRUNCATE TABLE adfassesment.stg_users;"
 						}
 					],
 					"scriptBlockExecutionTimeout": "02:00:00"

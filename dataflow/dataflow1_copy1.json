@@ -68,7 +68,7 @@
 				"     skipDuplicateMapInputs: false,",
 				"     skipDuplicateMapOutputs: false) ~> flatten1",
 				"derivedColumn1 filter(id >$watermark) ~> filter1",
-				"flatten1 derive(load_date = currentTimestamp()) ~> derivedColumn1",
+				"flatten1 derive(created_date = currentTimestamp()) ~> derivedColumn1",
 				"filter1 aggregate(groupBy(id),",
 				"     firstName = first(firstName),",
 				"          lastName = last(lastName),",
@@ -82,7 +82,7 @@
 				"          eyeColor = first(eyeColor),",
 				"          height = first(height),",
 				"          weight = first(weight),",
-				"          load_date = first(load_date)) ~> aggregate1",
+				"          created_date = first(created_date)) ~> aggregate1",
 				"aggregate1 sink(allowSchemaDrift: false,",
 				"     validateSchema: true,",
 				"     input(",
@@ -123,7 +123,7 @@
 				"          eyeColor,",
 				"          height,",
 				"          weight,",
-				"          loadDate = load_date",
+				"          loadDate = created_date",
 				"     )) ~> sink1"
 			]
 		}

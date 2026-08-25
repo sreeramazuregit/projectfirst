@@ -20,6 +20,10 @@
 				"type": "int",
 				"precision": 10
 			}
-		]
+		],
+		"typeProperties": {
+			"schema": "adfassesment",
+			"table": "ETL_Watermark"
+		}
 	}
 }

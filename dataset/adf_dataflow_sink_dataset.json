@@ -2,7 +2,7 @@
 	"name": "adf_dataflow_sink_dataset",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureSqlDatabase1",
+			"referenceName": "AssesmentLinkedService",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
@@ -75,7 +75,7 @@
 		],
 		"typeProperties": {
 			"schema": "adfassesment",
-			"table": "users"
+			"table": "stg_users"
 		}
 	}
 }
